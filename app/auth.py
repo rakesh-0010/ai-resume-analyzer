@@ -1,10 +1,37 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from app.database import db
 from app.models import User
 from app.forms import LoginForm, RegisterForm, ProfileForm
+from app.demo_seeder import seed_demo_accounts
 
 auth_bp = Blueprint('auth', __name__)
+
+
+@auth_bp.route('/demo/candidate')
+def demo_candidate_login():
+    """1-Click direct login as Demo Candidate with pre-loaded resumes and ATS analysis."""
+    seed_demo_accounts(current_app)
+    user = User.query.filter_by(email='demo.candidate@ats-pro.ai').first()
+    if user:
+        login_user(user)
+        flash('⚡ Signed in as Demo Candidate! Explore your pre-analyzed resume, ATS score gauge, and job match results.', 'success')
+        return redirect(url_for('routes.dashboard'))
+    flash('Could not initialize demo candidate account.', 'danger')
+    return redirect(url_for('auth.login'))
+
+
+@auth_bp.route('/demo/admin')
+def demo_admin_login():
+    """1-Click direct login as Demo Administrator with platform telemetry access."""
+    seed_demo_accounts(current_app)
+    admin = User.query.filter_by(email='demo.admin@ats-pro.ai').first()
+    if admin:
+        login_user(admin)
+        flash('🛡️ Signed in as Demo Administrator! You have access to user management, metrics, and administration.', 'info')
+        return redirect(url_for('routes.admin_dashboard'))
+    flash('Could not initialize demo administrator account.', 'danger')
+    return redirect(url_for('auth.login'))
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])

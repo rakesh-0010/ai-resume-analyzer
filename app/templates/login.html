@@ -11,10 +11,42 @@
       </div>
       <h3 class="fw-bold text-dark mb-0">ResumeAI</h3>
     </a>
-    <p class="text-muted small">Sign in to your ATS Optimization account</p>
+    <p class="text-muted small">Sign in or explore instantly with one-click demo accounts</p>
   </div>
 
-  <div class="app-card border shadow-sm p-4 p-md-5" style="width: 100%; max-width: 440px;">
+  <div class="app-card border shadow-sm p-4 p-md-5" style="width: 100%; max-width: 460px;">
+    
+    <!-- 1-Click Direct Demo Logins -->
+    <div class="p-3 bg-light rounded-3 border mb-4">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="small fw-bold text-dark text-uppercase tracking-wide" style="font-size: 0.75rem;">
+          <i class="fas fa-bolt text-warning me-1"></i> Instant 1-Click Demos
+        </span>
+        <span class="badge bg-success-subtle text-success border" style="font-size: 0.65rem;">Ready to Test</span>
+      </div>
+      <p class="text-muted small mb-3" style="font-size: 0.8rem;">
+        Test drive with pre-loaded resumes, ATS score audits, and admin features:
+      </p>
+      <div class="d-grid gap-2">
+        <a href="{{ url_for('auth.demo_candidate_login') }}" class="btn btn-sm btn-outline-primary fw-semibold d-flex align-items-center justify-content-between px-3 py-2">
+          <span><i class="fas fa-user-astronaut me-2"></i> Demo Candidate (Job Seeker)</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="{{ url_for('auth.demo_admin_login') }}" class="btn btn-sm btn-outline-dark fw-semibold d-flex align-items-center justify-content-between px-3 py-2">
+          <span><i class="fas fa-shield-halved me-2"></i> Demo Administrator</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="position-relative text-center my-4">
+      <hr class="text-muted">
+      <span class="position-absolute top-50 start-50 translate-middle px-3 bg-white text-muted small fw-semibold">
+        OR SIGN IN MANUALLY
+      </span>
+    </div>
+
+    <!-- Standard Login Form -->
     <form method="POST" action="{{ url_for('auth.login') }}">
       {{ form.hidden_tag() }}
 
@@ -22,7 +54,7 @@
         <label class="form-label small fw-semibold text-muted">Email Address</label>
         <div class="input-group">
           <span class="input-group-text bg-light text-muted"><i class="fas fa-envelope"></i></span>
-          {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="name@company.com") }}
+          {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="name@company.com", id="login-email") }}
         </div>
         {% for error in form.email.errors %}
           <div class="text-danger small mt-1">{{ error }}</div>
@@ -35,7 +67,7 @@
         </div>
         <div class="input-group">
           <span class="input-group-text bg-light text-muted"><i class="fas fa-lock"></i></span>
-          {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="••••••••") }}
+          {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="••••••••", id="login-password") }}
         </div>
         {% for error in form.password.errors %}
           <div class="text-danger small mt-1">{{ error }}</div>

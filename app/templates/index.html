@@ -32,14 +32,18 @@
     <p class="lead text-muted mx-auto mb-4" style="max-width: 680px; font-size: 1.15rem;">
       75% of resumes are rejected by applicant tracking software before a human sees them. Analyze your resume, match job requirements, uncover missing skills, and build ATS-friendly resumes in minutes.
     </p>
-    <div class="d-flex justify-content-center gap-3">
+    <div class="d-flex justify-content-center flex-wrap gap-3 mb-3">
       <a href="{{ url_for('auth.register') }}" class="btn btn-primary-custom btn-lg px-4 py-2.5 shadow">
         <i class="fas fa-bolt me-2"></i> Analyze My Resume Now
       </a>
-      <a href="{{ url_for('auth.login') }}" class="btn btn-secondary-custom btn-lg px-4 py-2.5">
-        <i class="fas fa-arrow-right me-2"></i> Member Login
+      <a href="{{ url_for('auth.demo_candidate_login') }}" class="btn btn-outline-primary btn-lg px-4 py-2.5 bg-white shadow-sm">
+        <i class="fas fa-user-astronaut me-2"></i> 1-Click Candidate Demo
+      </a>
+      <a href="{{ url_for('auth.demo_admin_login') }}" class="btn btn-secondary-custom btn-lg px-4 py-2.5">
+        <i class="fas fa-shield-halved me-2"></i> 1-Click Admin Demo
       </a>
     </div>
+    <div class="small text-muted">No registration required for demos. Instant pre-loaded resumes and ATS reports.</div>
   </div>
 </section>
 
