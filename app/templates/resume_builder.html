@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}ATS Resume Builder — AI Resume Analyzer{% endblock %}
+{% block header_title %}ATS Compliant Resume Builder{% endblock %}
+
+{% block content %}
+<form method="POST" action="{{ url_for('routes.create_builder_resume') }}" id="builder-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="row g-4">
+    <!-- Left Column: Template Selection & Personal Details -->
+    <div class="col-lg-5">
+      <!-- Template Selector -->
+      <div class="app-card mb-4">
+        <div class="app-card-header">
+          <h5 class="app-card-title"><i class="fas fa-swatchbook text-primary me-2"></i> 1. Choose ATS Template</h5>
+        </div>
+        <div class="app-card-body">
+          <div class="row g-3">
+            {% for t in templates %}
+            <div class="col-12">
+              <label class="d-flex align-items-center p-3 border rounded cursor-pointer {% if loop.first %}border-primary bg-primary-subtle{% endif %}" style="cursor: pointer;">
+                <input type="radio" name="template" value="{{ t.slug }}" class="form-check-input me-3" {% if loop.first %}checked{% endif %}>
+                <div>
+                  <div class="fw-bold text-dark">{{ t.name }}</div>
+                  <small class="text-muted">{{ t.description }}</small>
+                </div>
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Information -->
+      <div class="app-card mb-4">
+        <div class="app-card-header">
+          <h5 class="app-card-title"><i class="fas fa-id-card text-primary me-2"></i> 2. Personal Information</h5>
+        </div>
+        <div class="app-card-body">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Full Name</label>
+            <input type="text" name="full_name" class="form-control form-control-sm" value="{{ user.name }}" required>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-bold">Email Address</label>
+              <input type="email" name="email" class="form-control form-control-sm" value="{{ user.email }}" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold">Phone Number</label>
+              <input type="text" name="phone" class="form-control form-control-sm" value="{{ user.phone or '' }}" placeholder="+1 (555) 000-0000">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Location (City, State / Country)</label>
+            <input type="text" name="location" class="form-control form-control-sm" placeholder="San Francisco, CA">
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-bold">LinkedIn URL</label>
+              <input type="text" name="linkedin" class="form-control form-control-sm" placeholder="linkedin.com/in/username">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold">GitHub / Portfolio URL</label>
+              <input type="text" name="github" class="form-control form-control-sm" placeholder="github.com/username">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Professional Summary</label>
+            <textarea name="summary" class="form-control form-control-sm" rows="4" placeholder="Dedicated Software Engineer with 4+ years designing high-throughput web applications and scalable database architectures..."></textarea>
+          </div>
+          <div>
+            <label class="form-label small fw-bold">Technical Skills (Comma separated or categorized)</label>
+            <textarea name="skills" class="form-control form-control-sm" rows="3" placeholder="Languages: Python, JavaScript, SQL. Frameworks: Flask, React, Bootstrap. Databases: MySQL, PostgreSQL, Redis. DevOps: Docker, Git, AWS."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certifications -->
+      <div class="app-card mb-4">
+        <div class="app-card-header">
+          <h5 class="app-card-title"><i class="fas fa-certificate text-primary me-2"></i> Certifications</h5>
+        </div>
+        <div class="app-card-body">
+          <textarea name="certifications" class="form-control form-control-sm" rows="3" placeholder="• AWS Certified Solutions Architect (2025)&#10;• Certified Kubernetes Application Developer (CKAD)"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Experience, Projects, Education -->
+    <div class="col-lg-7">
+      <!-- Work Experience -->
+      <div class="app-card mb-4">
+        <div class="app-card-header d-flex justify-content-between align-items-center">
+          <h5 class="app-card-title"><i class="fas fa-briefcase text-primary me-2"></i> 3. Work Experience</h5>
+          <button type="button" class="btn btn-sm btn-outline-primary" onclick="addExperienceRow()">
+            <i class="fas fa-plus me-1"></i> Add Experience
+          </button>
+        </div>
+        <div class="app-card-body" id="experience-container">
+          <!-- Initial row -->
+          <div class="border rounded p-3 mb-3 bg-light position-relative item-card">
+            <div class="row g-2 mb-2">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Job Title</label>
+                <input type="text" name="exp_role[]" class="form-control form-control-sm" placeholder="e.g. Senior Software Engineer" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Company</label>
+                <input type="text" name="exp_company[]" class="form-control form-control-sm" placeholder="e.g. Acme Tech Solutions" required>
+              </div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Dates / Duration</label>
+                <input type="text" name="exp_duration[]" class="form-control form-control-sm" placeholder="e.g. Jan 2023 - Present">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Location</label>
+                <input type="text" name="exp_location[]" class="form-control form-control-sm" placeholder="e.g. Austin, TX (Remote)">
+              </div>
+            </div>
+            <div>
+              <label class="form-label small fw-bold">Bullet Points / Impact (One per line)</label>
+              <textarea name="exp_description[]" class="form-control form-control-sm" rows="3" placeholder="• Engineered microservices infrastructure serving 2M monthly active users.&#10;• Optimized MySQL queries, decreasing API endpoint response times by 42%."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projects -->
+      <div class="app-card mb-4">
+        <div class="app-card-header d-flex justify-content-between align-items-center">
+          <h5 class="app-card-title"><i class="fas fa-diagram-project text-primary me-2"></i> 4. Key Projects</h5>
+          <button type="button" class="btn btn-sm btn-outline-primary" onclick="addProjectRow()">
+            <i class="fas fa-plus me-1"></i> Add Project
+          </button>
+        </div>
+        <div class="app-card-body" id="projects-container">
+          <div class="border rounded p-3 mb-3 bg-light position-relative item-card">
+            <div class="row g-2 mb-2">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Project Title</label>
+                <input type="text" name="proj_title[]" class="form-control form-control-sm" placeholder="e.g. Distributed Task Scheduler" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Technologies</label>
+                <input type="text" name="proj_tech[]" class="form-control form-control-sm" placeholder="e.g. Python, Celery, Redis, Docker">
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Link (e.g. GitHub or Live Demo)</label>
+              <input type="text" name="proj_link[]" class="form-control form-control-sm" placeholder="e.g. github.com/user/scheduler">
+            </div>
+            <div>
+              <label class="form-label small fw-bold">Description & Key Highlights</label>
+              <textarea name="proj_description[]" class="form-control form-control-sm" rows="2" placeholder="• Developed fault-tolerant job queue system with zero task loss guarantees."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Education -->
+      <div class="app-card mb-4">
+        <div class="app-card-header d-flex justify-content-between align-items-center">
+          <h5 class="app-card-title"><i class="fas fa-graduation-cap text-primary me-2"></i> 5. Education</h5>
+          <button type="button" class="btn btn-sm btn-outline-primary" onclick="addEducationRow()">
+            <i class="fas fa-plus me-1"></i> Add Education
+          </button>
+        </div>
+        <div class="app-card-body" id="education-container">
+          <div class="border rounded p-3 mb-3 bg-light position-relative item-card">
+            <div class="row g-2 mb-2">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Degree & Major</label>
+                <input type="text" name="edu_degree[]" class="form-control form-control-sm" placeholder="e.g. B.S. in Computer Science" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">University / College</label>
+                <input type="text" name="edu_school[]" class="form-control form-control-sm" placeholder="e.g. University of California, Berkeley" required>
+              </div>
+            </div>
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Graduation Year</label>
+                <input type="text" name="edu_year[]" class="form-control form-control-sm" placeholder="e.g. 2019 - 2023">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">GPA / Honors (Optional)</label>
+                <input type="text" name="edu_score[]" class="form-control form-control-sm" placeholder="e.g. 3.8 / 4.0 (Dean's List)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit & Action Bar -->
+      <div class="d-flex justify-content-end gap-3 pb-5">
+        <button type="submit" class="btn btn-primary-custom btn-lg px-5 shadow">
+          <i class="fas fa-file-pdf me-2"></i> Compile & Download ATS PDF
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}User Management — Admin Panel{% endblock %}
+{% block header_title %}User Account Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-1">Registered Users</h4>
+    <p class="text-muted small mb-0">Inspect user accounts, manage administrative roles, and oversee platform access.</p>
+  </div>
+  <a href="{{ url_for('routes.admin_dashboard') }}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left me-1"></i> Admin Analytics
+  </a>
+</div>
+
+<div class="app-card">
+  <div class="app-card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light small text-uppercase text-secondary">
+          <tr>
+            <th class="ps-4">User</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Resumes</th>
+            <th>Joined</th>
+            <th class="text-end pe-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td class="ps-4">
+              <div class="fw-semibold text-dark">{{ u.name }}</div>
+              {% if u.target_role %}<small class="text-muted">{{ u.target_role }}</small>{% endif %}
+            </td>
+            <td>{{ u.email }}</td>
+            <td>
+              <span class="badge {{ 'bg-danger-subtle text-danger' if u.is_admin else 'bg-secondary-subtle text-secondary' }} border">
+                {{ u.role | upper }}
+              </span>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark border">{{ u.resumes | length }} files</span>
+            </td>
+            <td class="text-muted small">{{ u.created_at.strftime('%b %d, %Y') }}</td>
+            <td class="text-end pe-4">
+              {% if u.id != current_user.id %}
+                <form method="POST" action="{{ url_for('routes.toggle_user_role', id=u.id) }}" class="d-inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-sm btn-outline-warning" title="Toggle Admin Role">
+                    <i class="fas fa-user-shield me-1"></i> {{ 'Demote to User' if u.is_admin else 'Make Admin' }}
+                  </button>
+                </form>
+                <form method="POST" action="{{ url_for('routes.delete_user', id=u.id) }}" class="d-inline ms-1" onsubmit="return confirm('Permanently delete user {{ u.name }} and all their resumes?');">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete User">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              {% else %}
+                <span class="badge bg-light text-muted border">Current Session</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

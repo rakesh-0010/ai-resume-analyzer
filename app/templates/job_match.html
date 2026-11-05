@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Job Description Matcher — AI Resume Analyzer{% endblock %}
+{% block header_title %}Job Description Skill Alignment{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Input Form -->
+  <div class="col-lg-5">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title"><i class="fas fa-bullseye text-primary me-2"></i> Match Against Job Posting</h5>
+      </div>
+      <div class="app-card-body p-4">
+        <form method="POST" id="job-match-form">
+          {{ form.hidden_tag() }}
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Select Resume</label>
+            {{ form.resume_id(class="form-select") }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Target Job Title</label>
+            {{ form.title(class="form-control", placeholder="e.g. Senior Full Stack Engineer") }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Company (Optional)</label>
+            {{ form.company(class="form-control", placeholder="e.g. Stripe / Google / Remote") }}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold">Paste Job Description</label>
+            {{ form.job_description(class="form-control", rows=9, placeholder="Paste the complete job description, requirements, and tech stack qualifications here...") }}
+            <small class="text-muted">Minimum 30 characters. The NLP engine will automatically extract tech stack, frameworks, and tools.</small>
+          </div>
+
+          <button type="submit" class="btn btn-primary-custom w-100 py-2.5">
+            <i class="fas fa-magnifying-glass-chart me-1"></i> Match Skills & Audit Gaps
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="col-lg-7">
+    {% if match_result %}
+      <div class="app-card mb-4">
+        <div class="app-card-header d-flex justify-content-between align-items-center">
+          <h5 class="app-card-title"><i class="fas fa-chart-simple text-primary me-2"></i> Match Compatibility</h5>
+          <span class="badge {{ match_result.compatibility_score | score_badge }} badge-score fs-6">
+            {{ match_result.compatibility_score }}% Match
+          </span>
+        </div>
+        <div class="app-card-body">
+          <div class="score-circle" style="--percent: {{ match_result.compatibility_score }};">
+            <div class="score-circle-inner">
+              <span class="score-number">{{ match_result.compatibility_score }}%</span>
+              <span class="score-label">MATCH</span>
+            </div>
+          </div>
+
+          <div class="text-center mb-4">
+            <h6 class="fw-bold mb-1">
+              {% if match_result.compatibility_score >= 80 %}
+                <span class="text-success"><i class="fas fa-circle-check me-1"></i> Highly Compatible Profile</span>
+              {% elif match_result.compatibility_score >= 50 %}
+                <span class="text-warning"><i class="fas fa-triangle-exclamation me-1"></i> Moderate Fit — Target Gaps Below</span>
+              {% else %}
+                <span class="text-danger"><i class="fas fa-circle-xmark me-1"></i> Low Fit — Critical Keywords Missing</span>
+              {% endif %}
+            </h6>
+            <small class="text-muted">Analyzed against {{ match_result.required_skills | length }} detected skill requirements</small>
+          </div>
+
+          <!-- Matching vs Missing Skills -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded border h-100">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="fw-bold text-success mb-0"><i class="fas fa-check-circle me-1"></i> Matching Skills ({{ match_result.matching_skills | length }})</h6>
+                </div>
+                <div>
+                  {% if match_result.matching_skills %}
+                    {% for ms in match_result.matching_skills %}
+                      <span class="skill-pill">{{ ms }}</span>
+                    {% endfor %}
+                  {% else %}
+                    <p class="text-muted small mb-0">No matching technical skills identified.</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded border h-100">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="fw-bold text-danger mb-0"><i class="fas fa-circle-xmark me-1"></i> Missing Skills ({{ match_result.missing_skills | length }})</h6>
+                </div>
+                <div>
+                  {% if match_result.missing_skills %}
+                    {% for mis in match_result.missing_skills %}
+                      <span class="skill-pill missing">{{ mis }}</span>
+                    {% endfor %}
+                  {% else %}
+                    <p class="text-success small mb-0"><i class="fas fa-check me-1"></i> You cover all detected job skills!</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Learning Recommendations -->
+          <div class="p-3 rounded border bg-primary-subtle">
+            <h6 class="fw-bold text-primary mb-2"><i class="fas fa-graduation-cap me-2"></i> Tailored Optimization Plan:</h6>
+            <ul class="mb-0 small text-secondary ps-3">
+              {% for rec in match_result.recommendations %}
+              <li class="mb-1">{{ rec }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="app-card p-5 text-center text-muted">
+        <i class="fas fa-crosshairs fa-3x mb-3 text-secondary"></i>
+        <h5>Compare Your Resume to Any Role</h5>
+        <p class="small mx-auto" style="max-width: 440px;">
+          Select a resume from your portfolio on the left, paste the job posting or qualifications, and our system will identify exact technical matches, keyword deficits, and ATS match percentages.
+        </p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}AI Resume Analyzer & ATS Platform — Land Your Dream Career{% endblock %}
+
+{% block public_content %}
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg bg-white border-bottom py-3">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark" href="{{ url_for('routes.index') }}">
+      <div class="brand-icon" style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1, #3b82f6); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+        <i class="fas fa-file-invoice"></i>
+      </div>
+      <span>ResumeAI <span class="badge bg-primary-subtle text-primary border" style="font-size: 0.65rem;">ATS PRO</span></span>
+    </a>
+    <div class="d-flex align-items-center gap-2 ms-auto">
+      <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary fw-semibold px-3">Sign In</a>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary-custom px-4">Get Started Free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="py-5" style="background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);">
+  <div class="container py-5 text-center">
+    <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill bg-white border shadow-sm mb-4">
+      <span class="badge bg-primary">NEW</span>
+      <span class="small fw-semibold text-secondary">Powered by Google Gemini & Deterministic ATS Scoring</span>
+    </div>
+    <h1 class="display-4 fw-extrabold text-slate-900 mb-3 mx-auto" style="max-width: 850px; font-weight: 800; line-height: 1.15;">
+      Optimize Your Resume for Enterprise ATS Systems with <span style="background: linear-gradient(135deg, #6366f1, #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Precision AI</span>
+    </h1>
+    <p class="lead text-muted mx-auto mb-4" style="max-width: 680px; font-size: 1.15rem;">
+      75% of resumes are rejected by applicant tracking software before a human sees them. Analyze your resume, match job requirements, uncover missing skills, and build ATS-friendly resumes in minutes.
+    </p>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary-custom btn-lg px-4 py-2.5 shadow">
+        <i class="fas fa-bolt me-2"></i> Analyze My Resume Now
+      </a>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-secondary-custom btn-lg px-4 py-2.5">
+        <i class="fas fa-arrow-right me-2"></i> Member Login
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Feature Grid -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <h6 class="text-primary fw-bold text-uppercase letter-spacing-1">Engineering Excellence</h6>
+      <h2 class="fw-bold text-dark">Engineered to Beat Enterprise ATS Algorithms</h2>
+      <p class="text-muted">Built with transparent scoring rules — no guesswork or arbitrary percentages.</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="app-card h-100 p-4 border">
+          <div class="stat-icon purple mb-3"><i class="fas fa-gauge-high"></i></div>
+          <h5 class="fw-bold">Transparent ATS Score</h5>
+          <p class="text-muted small">Multi-dimensional audit assessing completeness, keyword density, section headers, formatting compliance, and impact metrics.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="app-card h-100 p-4 border">
+          <div class="stat-icon blue mb-3"><i class="fas fa-bullseye"></i></div>
+          <h5 class="fw-bold">Job Description Matcher</h5>
+          <p class="text-muted small">Paste target job postings to automatically extract required tech stacks, identify keyword gaps, and receive tailored learning plans.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="app-card h-100 p-4 border">
+          <div class="stat-icon green mb-3"><i class="fas fa-wand-magic-sparkles"></i></div>
+          <h5 class="fw-bold">AI Content Rewriter</h5>
+          <p class="text-muted small">Leverage Google Gemini to enhance duty bullets into quantified leadership achievements with power action verbs without inventing fake credentials.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="col-12 app-card h-100 p-4 border">
+          <div class="stat-icon amber mb-3"><i class="fas fa-file-pdf"></i></div>
+          <h5 class="fw-bold">ATS Resume Builder</h5>
+          <p class="text-muted small">Craft single-column, parse-compliant resumes from scratch and download them directly as professionally styled PDF documents.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="col-12 app-card h-100 p-4 border">
+          <div class="stat-icon purple mb-3"><i class="fas fa-chart-line"></i></div>
+          <h5 class="fw-bold">Action Verb & Skill Audit</h5>
+          <p class="text-muted small">Categorize technical competencies into Languages, Frameworks, Cloud, and Databases while benchmarking action verb usage.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="col-12 app-card h-100 p-4 border">
+          <div class="stat-icon blue mb-3"><i class="fas fa-file-arrow-down"></i></div>
+          <h5 class="fw-bold">Audit PDF Reports</h5>
+          <p class="text-muted small">Download detailed executive audit reports featuring your scores, strengths, weaknesses, and actionable step-by-step guidance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="py-4 border-top bg-white mt-auto">
+  <div class="container text-center text-muted small">
+    <p class="mb-1">&copy; 2026 ResumeAI Platform. Production-grade Python Flask & MySQL Architecture.</p>
+    <p class="mb-0">Powered by Google Gemini API & PyMuPDF NLP Engine.</p>
+  </div>
+</footer>
+{% endblock %}

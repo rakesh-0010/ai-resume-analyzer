@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}ATS Audit Report — {{ analysis.resume.title if analysis.resume else "Resume" }}{% endblock %}
+{% block header_title %}ATS In-Depth Audit Report{% endblock %}
+
+{% block content %}
+<!-- Top Action Bar -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+  <div>
+    <div class="d-flex align-items-center gap-2">
+      <h4 class="fw-bold mb-0">{{ analysis.resume.title if analysis.resume else "Uploaded Resume" }}</h4>
+      <span class="badge {{ analysis.ats_score | score_badge }} badge-score fs-6">
+        {{ analysis.ats_score }} / 100 ATS Score
+      </span>
+    </div>
+    <p class="text-muted small mb-0 mt-1">
+      <i class="fas fa-file-invoice me-1"></i> File: {{ analysis.resume.filename if analysis.resume else "" }} | 
+      <i class="fas fa-clock me-1"></i> Audited: {{ analysis.created_at.strftime('%B %d, %Y - %H:%M UTC') }}
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('routes.download_report', id=analysis.id) }}" class="btn btn-secondary-custom">
+      <i class="fas fa-file-pdf me-1 text-danger"></i> Download PDF Report
+    </a>
+    <a href="{{ url_for('routes.job_match') }}" class="btn btn-primary-custom">
+      <i class="fas fa-bullseye me-1"></i> Match Job Description
+    </a>
+  </div>
+</div>
+
+<!-- Score Breakdown Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4 col-xl-2 col-6">
+    <div class="app-card text-center p-3 mb-0 h-100">
+      <div class="text-muted small fw-bold mb-1">Completeness</div>
+      <h3 class="fw-bold mb-1 text-primary">{{ analysis.completeness_score }}%</h3>
+      <div class="progress" style="height: 4px;">
+        <div class="progress-bar bg-primary" style="width: {{ analysis.completeness_score }}%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 col-xl-2 col-6">
+    <div class="app-card text-center p-3 mb-0 h-100">
+      <div class="text-muted small fw-bold mb-1">Technical Skills</div>
+      <h3 class="fw-bold mb-1 text-success">{{ analysis.skills_score }}%</h3>
+      <div class="progress" style="height: 4px;">
+        <div class="progress-bar bg-success" style="width: {{ analysis.skills_score }}%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 col-xl-2 col-6">
+    <div class="app-card text-center p-3 mb-0 h-100">
+      <div class="text-muted small fw-bold mb-1">Formatting</div>
+      <h3 class="fw-bold mb-1 text-info">{{ analysis.formatting_score }}%</h3>
+      <div class="progress" style="height: 4px;">
+        <div class="progress-bar bg-info" style="width: {{ analysis.formatting_score }}%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 col-xl-2 col-6">
+    <div class="app-card text-center p-3 mb-0 h-100">
+      <div class="text-muted small fw-bold mb-1">Keywords</div>
+      <h3 class="fw-bold mb-1 text-warning">{{ analysis.keyword_score }}%</h3>
+      <div class="progress" style="height: 4px;">
+        <div class="progress-bar bg-warning" style="width: {{ analysis.keyword_score }}%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 col-xl-2 col-6">
+    <div class="app-card text-center p-3 mb-0 h-100">
+      <div class="text-muted small fw-bold mb-1">Content Quality</div>
+      <h3 class="fw-bold mb-1 text-purple" style="color: #6366f1;">{{ analysis.content_quality_score }}%</h3>
+      <div class="progress" style="height: 4px;">
+        <div class="progress-bar" style="width: {{ analysis.content_quality_score }}%; background-color: #6366f1;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 col-xl-2 col-6">
+    <div class="app-card text-center p-3 mb-0 h-100 bg-light border">
+      <div class="text-muted small fw-bold mb-1">Overall ATS</div>
+      <h3 class="fw-bold mb-1 text-dark">{{ analysis.ats_score }}</h3>
+      <div class="progress" style="height: 4px;">
+        <div class="progress-bar bg-dark" style="width: {{ analysis.ats_score }}%;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Strengths & Weaknesses -->
+  <div class="col-lg-6">
+    <div class="app-card h-100">
+      <div class="app-card-header">
+        <h5 class="app-card-title text-success"><i class="fas fa-circle-check me-2"></i> Verified Strengths</h5>
+      </div>
+      <div class="app-card-body">
+        {% if strengths %}
+          <ul class="list-unstyled mb-0">
+            {% for s in strengths %}
+            <li class="d-flex align-items-start gap-2 mb-3">
+              <i class="fas fa-check-circle text-success mt-1"></i>
+              <span class="small text-secondary">{{ s }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted small">No specific strength highlights available.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="app-card h-100">
+      <div class="app-card-header">
+        <h5 class="app-card-title text-danger"><i class="fas fa-triangle-exclamation me-2"></i> Critical ATS Gaps</h5>
+      </div>
+      <div class="app-card-body">
+        {% if weaknesses %}
+          <ul class="list-unstyled mb-0">
+            {% for w in weaknesses %}
+            <li class="d-flex align-items-start gap-2 mb-3">
+              <i class="fas fa-xmark-circle text-danger mt-1"></i>
+              <span class="small text-secondary">{{ w }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted small">No critical ATS gaps detected!</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Actionable Recommendations & Action Verbs -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-7">
+    <div class="app-card h-100">
+      <div class="app-card-header">
+        <h5 class="app-card-title"><i class="fas fa-list-check text-primary me-2"></i> Actionable Step-by-Step Fixes</h5>
+      </div>
+      <div class="app-card-body">
+        {% if recommendations %}
+          <ol class="mb-0 ps-3">
+            {% for r in recommendations %}
+            <li class="mb-3 small text-secondary">
+              <strong>{{ r }}</strong>
+            </li>
+            {% endfor %}
+          </ol>
+        {% endif %}
+        <div class="mt-4 pt-3 border-top d-flex gap-2">
+          <a href="{{ url_for('routes.improve_resume') }}" class="btn btn-sm btn-primary-custom">
+            <i class="fas fa-wand-magic-sparkles me-1"></i> AI Section Rewriter
+          </a>
+          <a href="{{ url_for('routes.resume_builder') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-pen-to-square me-1"></i> Rebuild in ATS Template
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="app-card h-100">
+      <div class="app-card-header">
+        <h5 class="app-card-title"><i class="fas fa-bolt text-warning me-2"></i> Action Verbs & Keywords</h5>
+      </div>
+      <div class="app-card-body">
+        <h6 class="small fw-bold text-muted mb-2">Detected Action Verbs ({{ action_verbs | length }}):</h6>
+        <div class="mb-4">
+          {% if action_verbs %}
+            {% for v in action_verbs %}
+              <span class="skill-pill">{{ v | title }}</span>
+            {% endfor %}
+          {% else %}
+            <p class="text-muted small">No strong action verbs detected.</p>
+          {% endif %}
+        </div>
+
+        <h6 class="small fw-bold text-muted mb-2">Structure & Sections Audit:</h6>
+        <div class="p-3 bg-light rounded border small">
+          <div class="d-flex justify-content-between mb-2">
+            <span>Contact Details Verified:</span>
+            <strong class="text-{{ 'success' if parsed.get('contact', {}).get('email') and parsed.get('contact', {}).get('phone') else 'warning' }}">
+              {{ 'Complete' if parsed.get('contact', {}).get('email') and parsed.get('contact', {}).get('phone') else 'Missing details' }}
+            </strong>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Word Count:</span>
+            <strong>{{ parsed.get('word_count', 0) }} words</strong>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span>Missing Sections:</span>
+            <strong class="text-{{ 'success' if not parsed.get('missing_sections') else 'danger' }}">
+              {{ parsed.get('missing_sections') | join(', ') if parsed.get('missing_sections') else 'None' }}
+            </strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Skills Catalog Breakdown -->
+<div class="app-card">
+  <div class="app-card-header">
+    <h5 class="app-card-title"><i class="fas fa-tags text-primary me-2"></i> Extracted Technical Competencies</h5>
+  </div>
+  <div class="app-card-body">
+    {% set cat_skills = parsed.get('skills', {}).get('categorized', {}) %}
+    {% if cat_skills %}
+      <div class="row g-4">
+        {% for cat_name, skill_items in cat_skills.items() %}
+        <div class="col-md-6 col-lg-3">
+          <div class="p-3 bg-light rounded border h-100">
+            <h6 class="fw-bold text-dark mb-2" style="font-size: 0.85rem;">{{ cat_name }}</h6>
+            <div>
+              {% for s in skill_items %}
+                <span class="skill-pill">{{ s }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted small mb-0">No technical competencies found in recognized dictionaries.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

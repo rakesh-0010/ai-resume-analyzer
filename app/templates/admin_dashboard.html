@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Analytics — AI Resume Analyzer{% endblock %}
+{% block header_title %}System Administration & Overview{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-widget">
+      <div>
+        <div class="stat-title">Platform Users</div>
+        <div class="stat-value">{{ total_users }}</div>
+      </div>
+      <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-widget">
+      <div>
+        <div class="stat-title">Total Resumes</div>
+        <div class="stat-value">{{ total_resumes }}</div>
+      </div>
+      <div class="stat-icon blue"><i class="fas fa-file-invoice"></i></div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-widget">
+      <div>
+        <div class="stat-title">Total Analyses</div>
+        <div class="stat-value">{{ total_analyses }}</div>
+      </div>
+      <div class="stat-icon green"><i class="fas fa-chart-pie"></i></div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-widget">
+      <div>
+        <div class="stat-title">Job Matches Run</div>
+        <div class="stat-value">{{ total_jobs }}</div>
+      </div>
+      <div class="stat-icon amber"><i class="fas fa-bullseye"></i></div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- System Health Card -->
+  <div class="col-lg-6">
+    <div class="app-card h-100">
+      <div class="app-card-header">
+        <h5 class="app-card-title"><i class="fas fa-server text-primary me-2"></i> System Health & Metrics</h5>
+      </div>
+      <div class="app-card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+          <span class="text-muted">Primary Database Engine:</span>
+          <span class="badge bg-primary-subtle text-primary border">MySQL / Fallback Ready</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+          <span class="text-muted">AI Model Integration:</span>
+          <span class="badge bg-success-subtle text-success border">Google Gemini 1.5 Flash</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+          <span class="text-muted">Global Average ATS Score:</span>
+          <strong class="text-dark">{{ system_avg_score }} / 100</strong>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted">Document Parsing Engines:</span>
+          <strong class="text-dark">PyMuPDF (fitz) + python-docx</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Admin Actions -->
+  <div class="col-lg-6">
+    <div class="app-card h-100">
+      <div class="app-card-header">
+        <h5 class="app-card-title"><i class="fas fa-sliders text-primary me-2"></i> Management Controls</h5>
+      </div>
+      <div class="app-card-body d-flex flex-column justify-content-around">
+        <p class="text-muted small">Manage registered user accounts, elevate permissions, inspect storage, and review platform telemetry.</p>
+        <div class="d-grid gap-2">
+          <a href="{{ url_for('routes.admin_users') }}" class="btn btn-outline-primary py-2">
+            <i class="fas fa-users-gear me-2"></i> Manage Registered Users ({{ total_users }})
+          </a>
+          <a href="{{ url_for('routes.dashboard') }}" class="btn btn-outline-secondary py-2">
+            <i class="fas fa-arrow-left me-2"></i> Return to User Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Latest System Resumes -->
+<div class="app-card">
+  <div class="app-card-header">
+    <h5 class="app-card-title"><i class="fas fa-clock text-primary me-2"></i> Latest Platform Resumes</h5>
+  </div>
+  <div class="app-card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light small text-uppercase text-secondary">
+          <tr>
+            <th class="ps-4">Resume</th>
+            <th>Uploaded By</th>
+            <th>Format</th>
+            <th>Uploaded At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in latest_resumes %}
+          <tr>
+            <td class="ps-4 fw-semibold">{{ r.title }}</td>
+            <td>{{ r.user.name }} ({{ r.user.email }})</td>
+            <td><span class="badge bg-light text-secondary border">{{ r.file_type | upper }}</span></td>
+            <td class="text-muted small">{{ r.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="text-center py-4 text-muted">No uploaded resumes on platform yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

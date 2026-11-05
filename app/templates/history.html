@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis History — AI Resume Analyzer{% endblock %}
+{% block header_title %}Audit History & Reports Archive{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-1">Previous Analyses</h4>
+    <p class="text-muted small mb-0">Track your resume improvements and historical ATS scores over time.</p>
+  </div>
+  <a href="{{ url_for('routes.upload_resume') }}" class="btn btn-primary-custom">
+    <i class="fas fa-plus me-1"></i> New Audit
+  </a>
+</div>
+
+<div class="app-card">
+  <div class="app-card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light small text-uppercase text-secondary">
+          <tr>
+            <th class="ps-4">Audit Details</th>
+            <th>Type</th>
+            <th>ATS Score</th>
+            <th>Timestamp</th>
+            <th class="text-end pe-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if history_records %}
+            {% for h in history_records %}
+            <tr>
+              <td class="ps-4">
+                <div class="fw-semibold text-dark">{{ h.summary or 'Resume Audit' }}</div>
+                <small class="text-muted">{{ h.resume.filename if h.resume else "" }}</small>
+              </td>
+              <td>
+                <span class="badge bg-secondary-subtle text-secondary border small">
+                  {{ h.action_type | replace('_', ' ') | title }}
+                </span>
+              </td>
+              <td>
+                {% if h.ats_score is not none %}
+                  <span class="badge {{ h.ats_score | score_badge }} badge-score">{{ h.ats_score }} / 100</span>
+                {% else %}
+                  <span class="text-muted small">N/A</span>
+                {% endif %}
+              </td>
+              <td class="text-muted small">
+                {{ h.created_at.strftime('%b %d, %Y - %H:%M') }}
+              </td>
+              <td class="text-end pe-4">
+                <div class="btn-group btn-group-sm">
+                  {% if h.analysis_id %}
+                    <a href="{{ url_for('routes.view_analysis', id=h.analysis_id) }}" class="btn btn-outline-primary" title="View Full Analysis">
+                      <i class="fas fa-magnifying-glass"></i>
+                    </a>
+                    <a href="{{ url_for('routes.download_report', id=h.analysis_id) }}" class="btn btn-outline-secondary" title="Download PDF Report">
+                      <i class="fas fa-file-pdf text-danger"></i>
+                    </a>
+                  {% endif %}
+                  <form method="POST" action="{{ url_for('routes.delete_history', id=h.id) }}" class="d-inline" onsubmit="return confirm('Remove this record from history?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-outline-danger" title="Delete Entry">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">
+                <i class="fas fa-clock-rotate-left fa-3x mb-3 text-secondary"></i>
+                <h6>No historical audit entries found</h6>
+                <p class="small">Upload or analyze a resume to build your progress timeline.</p>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

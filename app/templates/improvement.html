@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}AI Resume Improvement — AI Resume Analyzer{% endblock %}
+{% block header_title %}AI Resume Polish & Section Rewriter{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Input Form -->
+  <div class="col-lg-5">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title"><i class="fas fa-wand-magic-sparkles text-primary me-2"></i> Enhance Content with AI</h5>
+        <span class="badge bg-primary-subtle text-primary border">Gemini Powered</span>
+      </div>
+      <div class="app-card-body p-4">
+        <form method="POST" id="improve-form">
+          {{ form.hidden_tag() }}
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Section Type to Rewrite</label>
+            {{ form.section_type(class="form-select") }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Target Job Role</label>
+            {{ form.target_role(class="form-control", placeholder="e.g. Lead Python Backend Architect") }}
+            <small class="text-muted">Helps tailor the vocabulary and action verbs to your target industry.</small>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold">Current Raw Content</label>
+            {{ form.content(class="form-control", rows=8, placeholder="Paste your draft summary, rough work experience bullet points, or project description here...") }}
+            <small class="text-muted">Our AI preserves all real facts while upgrading grammar, tone, and power verbs.</small>
+          </div>
+
+          <button type="submit" class="btn btn-primary-custom w-100 py-2.5">
+            <i class="fas fa-sparkles me-2"></i> Polish & Elevate Content
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Improved Output Display -->
+  <div class="col-lg-7">
+    {% if rewrite_result %}
+      <div class="app-card mb-4">
+        <div class="app-card-header d-flex justify-content-between align-items-center">
+          <h5 class="app-card-title text-success"><i class="fas fa-circle-check me-2"></i> Optimized Result</h5>
+          <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('rewritten-content', this)">
+            <i class="fas fa-copy me-1"></i> Copy Content
+          </button>
+        </div>
+        <div class="app-card-body">
+          <!-- Rewritten Output Box -->
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-muted text-uppercase">Production-Ready Resume Text:</label>
+            <div id="rewritten-content" class="p-3 bg-light rounded border font-monospace text-dark" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">{{ rewrite_result.improved_content }}</div>
+          </div>
+
+          <!-- Key Changes Made -->
+          {% if rewrite_result.key_changes %}
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-muted text-uppercase">Enhancements Applied:</label>
+            <ul class="small text-secondary mb-0 ps-3">
+              {% for ch in rewrite_result.key_changes %}
+                <li>{{ ch }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          <!-- Action Verbs Used -->
+          {% if rewrite_result.action_verbs_used %}
+          <div>
+            <label class="form-label small fw-bold text-muted text-uppercase">Integrated Action Verbs:</label>
+            <div>
+              {% for av in rewrite_result.action_verbs_used %}
+                <span class="skill-pill">{{ av }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    {% else %}
+      <div class="app-card p-5 text-center text-muted">
+        <i class="fas fa-feather-pointed fa-3x mb-3 text-secondary"></i>
+        <h5>Transform Dull Bullets into Executive Highlights</h5>
+        <p class="small mx-auto" style="max-width: 440px;">
+          Paste rough draft bullet points or unpolished summaries on the left. The Google Gemini engine will rewrite them with active past-tense verbs, grammatical precision, and quantifiable framing without fabricating qualifications.
+        </p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

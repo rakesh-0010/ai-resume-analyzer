@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile — AI Resume Analyzer{% endblock %}
+{% block header_title %}Account Settings & Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title"><i class="fas fa-user-gear text-primary me-2"></i> Manage Profile & Credentials</h5>
+      </div>
+      <div class="app-card-body p-4 p-md-5">
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+          <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-3" style="width: 64px; height: 64px;">
+            {{ user.name[0] | upper }}
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0">{{ user.name }}</h5>
+            <div class="text-muted small">{{ user.email }}</div>
+            <span class="badge bg-secondary-subtle text-secondary border small mt-1">Role: {{ user.role | upper }}</span>
+          </div>
+        </div>
+
+        <form method="POST">
+          {{ form.hidden_tag() }}
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Full Name</label>
+              {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+              {% for err in form.name.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Phone Number</label>
+              {{ form.phone(class="form-control", placeholder="+1 (555) 000-0000") }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Target Job Role / Title</label>
+            {{ form.target_role(class="form-control", placeholder="e.g. Senior Machine Learning Engineer") }}
+            <small class="text-muted">Used by our AI rewriter to customize keywords for your profile.</small>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small fw-bold">Bio / Career Objective</label>
+            {{ form.bio(class="form-control", rows=3, placeholder="Brief career statement...") }}
+          </div>
+
+          <div class="p-3 bg-light rounded border mb-4">
+            <h6 class="fw-bold text-dark mb-2"><i class="fas fa-key text-primary me-2"></i> Password Management</h6>
+            <p class="text-muted small mb-2">Leave blank if you do not wish to change your current password.</p>
+            <label class="form-label small fw-bold">New Password</label>
+            {{ form.new_password(class="form-control" + (" is-invalid" if form.new_password.errors else ""), placeholder="••••••••") }}
+            {% for err in form.new_password.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+          </div>
+
+          <button type="submit" class="btn btn-primary-custom w-100 py-2.5">
+            <i class="fas fa-save me-1"></i> Save Changes
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

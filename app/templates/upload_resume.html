@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Resume — AI Resume Analyzer{% endblock %}
+{% block header_title %}Upload & Audit Resume{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title"><i class="fas fa-cloud-arrow-up text-primary me-2"></i> Submit Resume for ATS Audit</h5>
+        <span class="badge bg-light text-muted border">Supports PDF & DOCX</span>
+      </div>
+      <div class="app-card-body p-4 p-md-5">
+        <form method="POST" enctype="multipart/form-data" id="upload-form">
+          {{ form.hidden_tag() }}
+
+          <div class="mb-4">
+            <label class="form-label fw-bold">Resume Title / Version</label>
+            {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), placeholder="e.g. Senior Software Engineer - 2026") }}
+            <small class="text-muted">A clear label to distinguish this resume iteration.</small>
+            {% for err in form.title.errors %}
+              <div class="text-danger small mt-1">{{ err }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- Drag and Drop Zone -->
+          <div class="mb-4">
+            <label class="form-label fw-bold">Document File</label>
+            <div class="dropzone-container" id="dropzone" onclick="document.getElementById('resume_file').click()">
+              <div class="dropzone-icon">
+                <i class="fas fa-file-arrow-up"></i>
+              </div>
+              <h5 class="fw-bold mb-1">Drag and drop your resume file here</h5>
+              <p class="text-muted small mb-3">or click to browse from your device</p>
+              <div class="d-inline-flex gap-2">
+                <span class="badge bg-secondary-subtle text-secondary border"><i class="fas fa-file-pdf me-1 text-danger"></i> PDF Document</span>
+                <span class="badge bg-secondary-subtle text-secondary border"><i class="fas fa-file-word me-1 text-primary"></i> DOCX Document</span>
+              </div>
+              <!-- Hidden native file input -->
+              <input type="file" name="resume_file" id="resume_file" class="d-none" accept=".pdf,.docx">
+            </div>
+
+            <!-- Selected File Display -->
+            <div id="file-info" class="d-none mt-3 p-3 bg-light rounded border d-flex align-items-center justify-content-between animate-fade-in">
+              <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-file-lines fa-2x text-primary"></i>
+                <div>
+                  <div class="fw-bold text-dark" id="file-name-display">filename.pdf</div>
+                  <small class="text-success"><i class="fas fa-check-circle me-1"></i> Ready for upload and ATS extraction</small>
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.getElementById('resume_file').value = ''; document.getElementById('file-info').classList.add('d-none');">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            {% for err in form.resume_file.errors %}
+              <div class="text-danger small mt-2">{{ err }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- Guidelines Box -->
+          <div class="p-3 mb-4 rounded border bg-light-subtle">
+            <h6 class="fw-bold text-dark mb-2"><i class="fas fa-circle-info text-primary me-2"></i> ATS Upload Guidelines:</h6>
+            <ul class="text-muted small mb-0 ps-3">
+              <li>Max file size: 16 MB.</li>
+              <li>Avoid complex multi-column text boxes, images of text, or password-protected files.</li>
+              <li>Our Python NLP engine extracts and parses contact details, work experience, projects, skills, and education automatically.</li>
+            </ul>
+          </div>
+
+          <button type="submit" class="btn btn-primary-custom w-100 py-2.5 fs-6 shadow">
+            <i class="fas fa-bolt me-2"></i> Upload and Run Full ATS Audit
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

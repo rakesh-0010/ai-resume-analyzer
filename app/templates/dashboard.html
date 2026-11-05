@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — AI Resume Analyzer{% endblock %}
+{% block header_title %}Analytics & Optimization Dashboard{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+  <!-- Stat Widget: Total Resumes -->
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-widget">
+      <div>
+        <div class="stat-title">Uploaded Resumes</div>
+        <div class="stat-value">{{ total_resumes }}</div>
+      </div>
+      <div class="stat-icon purple">
+        <i class="fas fa-file-lines"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stat Widget: Total Analyses -->
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-widget">
+      <div>
+        <div class="stat-title">Total Analyses</div>
+        <div class="stat-value">{{ total_analyses }}</div>
+      </div>
+      <div class="stat-icon blue">
+        <i class="fas fa-microchip"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stat Widget: Latest ATS Score -->
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-widget">
+      <div>
+        <div class="stat-title">Latest ATS Score</div>
+        <div class="stat-value">{{ latest_score }}<span class="text-muted fs-6 fw-normal">/100</span></div>
+      </div>
+      <div class="stat-icon {{ 'green' if latest_score >= 75 else ('amber' if latest_score >= 50 else 'purple') }}">
+        <i class="fas fa-gauge-high"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stat Widget: Avg ATS Score -->
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-widget">
+      <div>
+        <div class="stat-title">Average Score</div>
+        <div class="stat-value">{{ avg_score }}<span class="text-muted fs-6 fw-normal">/100</span></div>
+      </div>
+      <div class="stat-icon green">
+        <i class="fas fa-chart-line"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- ATS Radar / Doughnut Score Breakdown -->
+  <div class="col-lg-5">
+    <div class="app-card h-100">
+      <div class="app-card-header">
+        <h5 class="app-card-title"><i class="fas fa-chart-radar text-primary me-2"></i> Latest Score Dimensions</h5>
+        {% if latest_analysis %}
+        <span class="badge {{ latest_score | score_badge }} badge-score">{{ latest_score }}% ATS Match</span>
+        {% endif %}
+      </div>
+      <div class="app-card-body d-flex flex-column align-items-center justify-content-center">
+        {% if latest_analysis %}
+          <div style="width: 100%; max-width: 340px; height: 260px;">
+            <canvas id="scoreRadarChart"></canvas>
+          </div>
+          <div class="w-100 mt-3 pt-3 border-top">
+            <div class="row text-center g-2">
+              <div class="col-4">
+                <small class="text-muted d-block">Skills</small>
+                <strong class="text-dark">{{ latest_analysis.skills_score }}%</strong>
+              </div>
+              <div class="col-4">
+                <small class="text-muted d-block">Formatting</small>
+                <strong class="text-dark">{{ latest_analysis.formatting_score }}%</strong>
+              </div>
+              <div class="col-4">
+                <small class="text-muted d-block">Keywords</small>
+                <strong class="text-dark">{{ latest_analysis.keyword_score }}%</strong>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="text-center py-5 text-muted">
+            <i class="fas fa-file-circle-question fa-3x mb-3 text-secondary"></i>
+            <h6>No resume analyzed yet</h6>
+            <p class="small">Upload a resume to reveal your ATS dimension breakdown.</p>
+            <a href="{{ url_for('routes.upload_resume') }}" class="btn btn-sm btn-primary-custom mt-2">Upload First Resume</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Skills Distribution Chart -->
+  <div class="col-lg-7">
+    <div class="app-card h-100">
+      <div class="app-card-header">
+        <h5 class="app-card-title"><i class="fas fa-layer-group text-primary me-2"></i> Identified Skills by Category</h5>
+        <span class="badge bg-light text-secondary border">NLP Parsed</span>
+      </div>
+      <div class="app-card-body">
+        {% if skill_categories_count %}
+          <div style="height: 270px;">
+            <canvas id="skillsCategoryChart"></canvas>
+          </div>
+        {% else %}
+          <div class="text-center py-5 text-muted">
+            <i class="fas fa-code fa-3x mb-3 text-secondary"></i>
+            <h6>Skill profile pending</h6>
+            <p class="small">Once you analyze a resume, your technical competencies will be grouped and visualized here.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Recent Analyses Table -->
+  <div class="col-lg-8">
+    <div class="app-card mb-0">
+      <div class="app-card-header">
+        <h5 class="app-card-title"><i class="fas fa-list-check text-primary me-2"></i> Recent Resume Analyses</h5>
+        <a href="{{ url_for('routes.history') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+      </div>
+      <div class="app-card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light small text-uppercase text-secondary">
+              <tr>
+                <th class="ps-4">Resume Title</th>
+                <th>ATS Score</th>
+                <th>Skills Depth</th>
+                <th>Date</th>
+                <th class="text-end pe-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if recent_analyses %}
+                {% for a in recent_analyses %}
+                <tr>
+                  <td class="ps-4">
+                    <div class="fw-semibold text-dark">{{ a.resume.title if a.resume else "Uploaded Resume" }}</div>
+                    <small class="text-muted">{{ a.resume.filename if a.resume else "" }}</small>
+                  </td>
+                  <td>
+                    <span class="badge {{ a.ats_score | score_badge }} badge-score">{{ a.ats_score }} / 100</span>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="progress flex-grow-1" style="height: 6px; width: 80px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ a.skills_score }}%;"></div>
+                      </div>
+                      <small class="fw-semibold">{{ a.skills_score }}%</small>
+                    </div>
+                  </td>
+                  <td class="text-muted small">{{ a.created_at.strftime('%b %d, %Y') }}</td>
+                  <td class="text-end pe-4">
+                    <a href="{{ url_for('routes.view_analysis', id=a.id) }}" class="btn btn-sm btn-outline-primary" title="View Full Analysis">
+                      <i class="fas fa-arrow-up-right-from-square"></i>
+                    </a>
+                    <a href="{{ url_for('routes.download_report', id=a.id) }}" class="btn btn-sm btn-outline-secondary" title="Download PDF Report">
+                      <i class="fas fa-download"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="5" class="text-center py-4 text-muted">No resume analyses found. Get started by uploading a resume.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Priority Recommendations / Quick Actions -->
+  <div class="col-lg-4">
+    <div class="app-card mb-0 h-100">
+      <div class="app-card-header">
+        <h5 class="app-card-title"><i class="fas fa-lightbulb text-warning me-2"></i> Priority Suggestions</h5>
+      </div>
+      <div class="app-card-body">
+        {% if latest_analysis and latest_analysis.get_recommendations() %}
+          <ul class="list-unstyled mb-0">
+            {% for rec in latest_analysis.get_recommendations()[:4] %}
+            <li class="d-flex align-items-start gap-2 mb-3 pb-2 border-bottom">
+              <i class="fas fa-circle-check text-primary mt-1"></i>
+              <span class="small text-secondary">{{ rec }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+          <div class="mt-3">
+            <a href="{{ url_for('routes.improve_resume') }}" class="btn btn-sm btn-primary-custom w-100">
+              <i class="fas fa-wand-magic-sparkles me-1"></i> Optimize with AI Rewriter
+            </a>
+          </div>
+        {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="fas fa-sparkles text-primary fa-2x mb-2"></i>
+            <p class="small mb-0">Analyze your resume to unlock real-time recommendations and AI rewrite opportunities.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  {% if latest_analysis %}
+  // Radar Chart: Score Breakdown
+  const radarCtx = document.getElementById('scoreRadarChart');
+  if (radarCtx) {
+    new Chart(radarCtx, {
+      type: 'radar',
+      data: {
+        labels: ['Completeness', 'Skills', 'Formatting', 'Keywords', 'Quality'],
+        datasets: [{
+          label: 'Your Resume',
+          data: [
+            {{ latest_analysis.completeness_score }},
+            {{ latest_analysis.skills_score }},
+            {{ latest_analysis.formatting_score }},
+            {{ latest_analysis.keyword_score }},
+            {{ latest_analysis.content_quality_score }}
+          ],
+          backgroundColor: 'rgba(99, 102, 241, 0.25)',
+          borderColor: '#6366f1',
+          pointBackgroundColor: '#4f46e5',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: '#4f46e5'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          r: {
+            suggestedMin: 0,
+            suggestedMax: 100,
+            ticks: { display: false, stepSize: 25 },
+            grid: { color: '#e2e8f0' },
+            pointLabels: {
+              font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
+              color: '#475569'
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+  {% endif %}
+
+  {% if skill_categories_count %}
+  // Bar Chart: Skill Categories Distribution
+  const skillsCtx = document.getElementById('skillsCategoryChart');
+  if (skillsCtx) {
+    new Chart(skillsCtx, {
+      type: 'bar',
+      data: {
+        labels: {{ skill_categories_count.keys() | list | tojson }},
+        datasets: [{
+          label: 'Identified Skills',
+          data: {{ skill_categories_count.values() | list | tojson }},
+          backgroundColor: '#3b82f6',
+          borderRadius: 6,
+          barThickness: 24
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, precision: 0 },
+            grid: { color: '#f1f5f9' }
+          },
+          x: {
+            grid: { display: false }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+  {% endif %}
+});
+</script>
+{% endblock %}
